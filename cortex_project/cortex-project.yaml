@@ -1,0 +1,7 @@
+version: 1
+artifacts:
+  - path: ../symantic_layer/urbanassist_semantic_layer.sv.yaml
+    type: semantic_view
+    targets:
+      URBANASSIST_SEMANTIC_LAYER_DEV:
+        object: URBANASSIST_DB.INTELLIGENCE.URBANASSIST_SEMANTIC_LAYER_DEV

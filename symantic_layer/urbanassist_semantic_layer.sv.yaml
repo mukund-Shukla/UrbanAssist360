@@ -1,0 +1,413 @@
+name: URBANASSIST_SEMANTIC_LAYER_DEV
+tables:
+  - name: DIM_CUSTOMER
+    description: "The table contains customer master data used for analytical reporting. Each record represents a single customer and includes identifiers, name and segment classification, home location, signup timing, active status, and audit timestamps for creation and updates."
+    base_table:
+      database: URBANASSIST_DB
+      schema: GOLD
+      table: DIM_CUSTOMER
+    primary_key:
+      columns:
+        - CUSTOMER_KEY
+    dimensions:
+      - name: CUSTOMER_HOME_CITY
+        expr: HOME_CITY
+        data_type: VARCHAR(16777216)
+        access_modifier: public_access
+        sample_values:
+          - Bengaluru
+          - Ahmedabad
+          - Chennai
+      - name: CUSTOMER_SEGMENT
+        expr: CUSTOMER_SEGMENT
+        data_type: VARCHAR(16777216)
+        access_modifier: public_access
+        sample_values:
+          - REGULAR
+          - LOYAL
+          - NEW
+  - name: DIM_DATE
+    description: "The table contains a calendar dimension with date attributes for a multi-year range. Each record represents a specific date and includes day, week, month, quarter, and year classifications along with an indicator for whether the date falls on a weekend."
+    base_table:
+      database: URBANASSIST_DB
+      schema: GOLD
+      table: DIM_DATE
+    primary_key:
+      columns:
+        - DATE_KEY
+    dimensions:
+      - name: BOOKING_DATE
+        expr: FULL_DATE
+        data_type: DATE
+        access_modifier: public_access
+      - name: DAY_NAME
+        expr: DAY_NAME
+        data_type: VARCHAR(16777216)
+        access_modifier: public_access
+      - name: IS_WEEKEND
+        expr: IS_WEEKEND
+        data_type: BOOLEAN
+        access_modifier: public_access
+        sample_values:
+          - "0"
+          - "1"
+      - name: MONTH_NAME
+        expr: MONTH_NAME
+        data_type: VARCHAR(16777216)
+        access_modifier: public_access
+        sample_values:
+          - Jan
+          - Feb
+          - Mar
+      - name: QUARTER
+        expr: QUARTER
+        data_type: "NUMBER(38,0)"
+        access_modifier: public_access
+        sample_values:
+          - "1"
+          - "2"
+          - "3"
+      - name: YEAR
+        expr: YEAR
+        data_type: "NUMBER(38,0)"
+        access_modifier: public_access
+        sample_values:
+          - "2025"
+          - "2026"
+          - "2027"
+    time_dimensions:
+      - name: FULL_DATE
+        expr: FULL_DATE
+        data_type: DATE
+        access_modifier: public_access
+        sample_values:
+          - "20089"
+          - "20090"
+          - "20091"
+  - name: DIM_PROVIDER_SCD2
+    description: "The table contains provider master data with a change history for operational attributes. Each record represents a provider and its associated details such as identity, location and service classification, with effective-dated snapshots spanning from start to end dates and a flag indicating the current version."
+    base_table:
+      database: URBANASSIST_DB
+      schema: GOLD
+      table: DIM_PROVIDER_SCD2
+    primary_key:
+      columns:
+        - PROVIDER_KEY
+    dimensions:
+      - name: ACTIVE_STATUS
+        expr: ACTIVE_STATUS
+        data_type: VARCHAR(16777216)
+        access_modifier: public_access
+        sample_values:
+          - ACTIVE
+      - name: EXPERIENCE_LEVEL
+        expr: EXPERIENCE_LEVEL
+        data_type: VARCHAR(16777216)
+        access_modifier: public_access
+        sample_values:
+          - EXPERIENCED
+          - EXPERT
+          - JUNIOR
+      - name: OPERATING_ZONE
+        expr: OPERATING_ZONE
+        data_type: VARCHAR(16777216)
+        access_modifier: public_access
+        sample_values:
+          - Central
+          - South
+          - East
+      - name: PRIMARY_CITY
+        expr: PRIMARY_CITY
+        data_type: VARCHAR(16777216)
+        access_modifier: public_access
+        sample_values:
+          - Mumbai
+          - Hyderabad
+          - Pune
+      - name: PROVIDER_ID
+        expr: PROVIDER_ID
+        data_type: VARCHAR(16777216)
+        access_modifier: public_access
+        sample_values:
+          - P00005
+          - P00162
+          - P00083
+      - name: PROVIDER_NAME
+        expr: PROVIDER_NAME
+        data_type: VARCHAR(16777216)
+        access_modifier: public_access
+      - name: PROVIDER_TIER
+        expr: PROVIDER_TIER
+        data_type: VARCHAR(16777216)
+        access_modifier: public_access
+        sample_values:
+          - PREMIUM
+          - STANDARD
+  - name: DIM_SERVICE
+    description: "The table contains a catalog of service offerings and their reference attributes. Each record covers a specific service, including its identifier and name, category, pricing and expected duration, required skill level, and whether the service is currently active, along with creation and update timestamps."
+    base_table:
+      database: URBANASSIST_DB
+      schema: GOLD
+      table: DIM_SERVICE
+    primary_key:
+      columns:
+        - SERVICE_KEY
+    dimensions:
+      - name: SERVICE_CATEGORY
+        expr: SERVICE_CATEGORY
+        data_type: VARCHAR(16777216)
+        access_modifier: public_access
+        sample_values:
+          - Plumbing
+          - Electrical
+          - Appliance Repair
+      - name: SERVICE_NAME
+        expr: SERVICE_NAME
+        data_type: VARCHAR(16777216)
+        access_modifier: public_access
+        sample_values:
+          - Tap and Leak Repair
+          - Bathroom Plumbing
+          - Fan Installation
+      - name: SKILL_LEVEL_REQUIRED
+        expr: SKILL_LEVEL_REQUIRED
+        data_type: VARCHAR(16777216)
+        access_modifier: public_access
+        sample_values:
+          - BASIC
+          - ADVANCED
+          - EXPERT
+  - name: FACT_BOOKING
+    description: "The table contains booking records covering the full lifecycle of a customer service request, from creation and scheduled time through start, completion, and final status. Each row represents a single booking and includes customer and provider identifiers, service categorization, location context, payment and monetary totals (gross, discount, tax, and final amounts), duration and timing metrics, customer rating, and aggregated counts related to completed or cancelled bookings."
+    base_table:
+      database: URBANASSIST_DB
+      schema: GOLD
+      table: FACT_BOOKING
+    unique_keys:
+      - columns:
+          - PROVIDER_KEY
+      - columns:
+          - SERVICE_KEY
+      - columns:
+          - BOOKING_ID
+    dimensions:
+      - name: BOOKING_CITY
+        expr: BOOKING_CITY
+        data_type: VARCHAR(16777216)
+        access_modifier: public_access
+        sample_values:
+          - Mumbai
+          - Chennai
+          - Hyderabad
+      - name: BOOKING_ID
+        expr: BOOKING_ID
+        data_type: VARCHAR(16777216)
+        access_modifier: public_access
+        sample_values:
+          - B00002010
+          - B00003839
+          - B00006421
+      - name: BOOKING_STATUS
+        expr: BOOKING_STATUS
+        data_type: VARCHAR(16777216)
+        access_modifier: public_access
+        sample_values:
+          - CANCELLED
+          - COMPLETED
+          - IN_PROGRESS
+      - name: PAYMENT_METHOD
+        expr: PAYMENT_METHOD
+        data_type: VARCHAR(16777216)
+        access_modifier: public_access
+        sample_values:
+          - CASH
+          - WALLET
+          - CARD
+    facts:
+      - name: CANCELLED_FLAG
+        expr: CANCELLED_BOOKING_COUNT
+        data_type: "NUMBER(1,0)"
+        access_modifier: public_access
+      - name: COMPLETED_FLAG
+        expr: COMPLETED_BOOKING_COUNT
+        data_type: "NUMBER(1,0)"
+        access_modifier: public_access
+      - name: DISCOUNT_AMOUNT
+        expr: DISCOUNT_AMOUNT
+        data_type: "NUMBER(12,2)"
+        access_modifier: public_access
+        sample_values:
+          - "0.00"
+          - "304.86"
+          - "17.64"
+      - name: FINAL_AMOUNT
+        expr: FINAL_AMOUNT
+        data_type: "NUMBER(12,2)"
+        access_modifier: public_access
+        sample_values:
+          - "1436.34"
+          - "1089.51"
+          - "3237.63"
+      - name: GROSS_AMOUNT
+        expr: GROSS_AMOUNT
+        data_type: "NUMBER(12,2)"
+        access_modifier: public_access
+        sample_values:
+          - "1217.24"
+          - "923.31"
+          - "994.24"
+      - name: RATING
+        expr: RATING
+        data_type: "NUMBER(38,0)"
+        access_modifier: public_access
+      - name: SERVICE_DURATION_MINUTES
+        expr: SERVICE_DURATION_MINUTES
+        data_type: "NUMBER(18,0)"
+        access_modifier: public_access
+      - name: TAX_AMOUNT
+        expr: TAX_AMOUNT
+        data_type: "NUMBER(12,2)"
+        access_modifier: public_access
+        sample_values:
+          - "219.10"
+          - "166.20"
+          - "178.96"
+    metrics:
+      - name: AVERAE_SERVICE_DURATION
+        expr: AVG(SERVICE_DURATION_MINUTES)
+        access_modifier: public_access
+      - name: AVERAGE_BOOKING_VALUE
+        expr: AVG(FINAL_AMOUNT)
+        access_modifier: public_access
+      - name: AVERAGE_RATING
+        expr: AVG(rating)
+        access_modifier: public_access
+      - name: CANCELLATION_RATE
+        expr: "SUM(cancelled_flag)/NULLIF(COUNT(BOOKING_ID),0)"
+        access_modifier: public_access
+      - name: CANCELLED_BOOKINGS
+        expr: SUM(cancelled_flag)
+        access_modifier: public_access
+      - name: COMPLETED_BOOKINGS
+        expr: SUM(completed_flag)
+        access_modifier: public_access
+      - name: COMPLETION_RATE
+        expr: "SUM(completed_flag)/NULLIF(COUNT(BOOKING_ID),0)"
+        access_modifier: public_access
+      - name: GROSS_REVENUE
+        expr: SUM(GROSS_AMOUNT)
+        access_modifier: public_access
+      - name: NET_REVENUE
+        expr: SUM(FINAL_AMOUNT)
+        access_modifier: public_access
+      - name: TOTAL_BOOKINGS
+        expr: COUNT(BOOKING_ID)
+        access_modifier: public_access
+    time_dimensions:
+      - name: BOOKING_CREATED_AT
+        expr: BOOKING_CREATED_AT
+        data_type: TIMESTAMP_TZ(9)
+        access_modifier: public_access
+        sample_values:
+          - 1781861277.000000000 1440
+          - 1781874456.000000000 1440
+          - 1781044558.000000000 1440
+      - name: SCHEDULED_AT
+        expr: SCHEDULED_AT
+        data_type: TIMESTAMP_TZ(9)
+        access_modifier: public_access
+        sample_values:
+          - 1782222633.000000000 1440
+          - 1782084477.000000000 1440
+          - 1781065190.000000000 1440
+      - name: SERVICE_COMPLETED_AT
+        expr: SERVICE_COMPLETED_AT
+        data_type: TIMESTAMP_TZ(9)
+        access_modifier: public_access
+        sample_values:
+          - 1781998936.000000000 1440
+          - 1782925937.000000000 1440
+          - 1783838446.000000000 1440
+      - name: SERVICE_STARTED_AT
+        expr: SERVICE_STARTED_AT
+        data_type: TIMESTAMP_TZ(9)
+        access_modifier: public_access
+        sample_values:
+          - 1781866352.000000000 1440
+          - 1781076431.000000000 1440
+          - 1780294849.000000000 1440
+  - name: FACT_REVIEW_INSIGHT
+    description: "The table contains records of AI-enriched review insights for reviewed bookings. Each record corresponds to a booking’s submitted review and includes sentiment outcomes, complaint categorization, narrative review summaries, classification results, and metadata about the model source and processing time."
+    base_table:
+      database: URBANASSIST_DB
+      schema: GOLD
+      table: FACT_REVIEW_INSIGHT
+    primary_key:
+      columns:
+        - BOOKING_ID
+    dimensions:
+      - name: BOOKING_ID
+        expr: BOOKING_ID
+        data_type: VARCHAR(16777216)
+        access_modifier: public_access
+      - name: COMPLAINT_CATEGORY
+        expr: COMPLAINT_CATEGORY
+        data_type: VARCHAR(16777216)
+        access_modifier: public_access
+        sample_values:
+          - Service Quality
+          - Punctuality
+          - Professionalism
+      - name: SENTIMENT_LABEL
+        expr: SENTIMENT_LABEL
+        data_type: VARCHAR(16777216)
+        access_modifier: public_access
+        sample_values:
+          - positive
+          - negative
+          - neutral
+    metrics:
+      - name: ENRICHED_REVIEW_COUNT
+        expr: COUNT(booking_id)
+        access_modifier: public_access
+      - name: NEGATIVE_REVIEW_COUNT
+        expr: COUNT_IF(SENTIMENT_LABEL='negative')
+        access_modifier: public_access
+relationships:
+  - name: BOOKINGS_TO_CUSTOMER
+    left_table: FACT_BOOKING
+    right_table: DIM_CUSTOMER
+    relationship_columns:
+      - left_column: CUSTOMER_KEY
+        right_column: CUSTOMER_KEY
+  - name: BOOKINGS_TO_DATES
+    left_table: FACT_BOOKING
+    right_table: DIM_DATE
+    relationship_columns:
+      - left_column: BOOKING_DATE_KEY
+        right_column: DATE_KEY
+  - name: FACT_BOOKING_TO_DIM_PROVIDER_SCD2
+    left_table: FACT_BOOKING
+    right_table: DIM_PROVIDER_SCD2
+    relationship_columns:
+      - left_column: PROVIDER_KEY
+        right_column: PROVIDER_KEY
+  - name: FACT_BOOKING_TO_DIM_SERVICE
+    left_table: FACT_BOOKING
+    right_table: DIM_SERVICE
+    relationship_columns:
+      - left_column: SERVICE_KEY
+        right_column: SERVICE_KEY
+  - name: FACT_REVIEW_INSIGHT_TO_FACT_BOOKING
+    left_table: FACT_REVIEW_INSIGHT
+    right_table: FACT_BOOKING
+    relationship_columns:
+      - left_column: BOOKING_ID
+        right_column: BOOKING_ID
+module_custom_instructions:
+  sql_generation: |-
+    Always use CTEs instead of subqueries for readability.
+    Round rates to four decimals and currency metrics to two decimals.
+    Display the currency as INR.
+    Use booking creation date unless the user explicitly requests another timestamp.
+  question_categorization: "This model covers bookings, customers, services, provider history, revenue, ratings, cancellations, service duration and enriched review sentiment. Ask for clarification when a time period or comparison group is ambiguous."

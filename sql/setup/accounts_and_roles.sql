@@ -1,0 +1,60 @@
+USE ROLE ACCOUNTADMIN;
+
+CREATE ROLE IF NOT EXISTS URBANASSIST_ENGINEER
+  COMMENT = 'Owns and operates UrbanAssist development objects';
+
+GRANT ROLE URBANASSIST_ENGINEER TO USER DATAPROD007;
+
+
+GRANT ROLE URBANASSIST_ENGINEER TO ROLE SYSADMIN;
+
+
+GRANT CREATE DATABASE ON ACCOUNT TO ROLE URBANASSIST_ENGINEER;
+
+
+GRANT CREATE WAREHOUSE ON ACCOUNT TO ROLE URBANASSIST_ENGINEER;
+
+
+GRANT CREATE INTEGRATION ON ACCOUNT TO ROLE URBANASSIST_ENGINEER;
+
+
+GRANT EXECUTE TASK ON ACCOUNT TO ROLE URBANASSIST_ENGINEER;
+
+GRANT DATABASE ROLE SNOWFLAKE.CORTEX_USER TO ROLE URBANASSIST_ENGINEER;
+
+
+GRANT DATABASE ROLE SNOWFLAKE.CORTEX_AGENT_USER TO ROLE URBANASSIST_ENGINEER;
+
+USE ROLE URBANASSIST_ENGINEER;
+
+CREATE WAREHOUSE IF NOT EXISTS URBANASSIST_WH
+  WAREHOUSE_SIZE = 'XSMALL'
+  AUTO_SUSPEND = 60
+  AUTO_RESUME = TRUE
+  INITIALLY_SUSPENDED = TRUE
+  COMMENT = 'Compute for UrbanAssist ingestion, transformation, and analytics';
+
+
+CREATE DATABASE IF NOT EXISTS URBANASSIST_DB
+  DATA_RETENTION_TIME_IN_DAYS = 1
+  COMMENT = 'Event-driven home-services analytics project';
+  
+-- Bronze owns append-only source landing tables.
+CREATE SCHEMA IF NOT EXISTS URBANASSIST_DB.BRONZE
+  COMMENT = 'Immutable raw landing objects';
+
+-- Silver owns typed and cleaned Dynamic Tables.
+CREATE SCHEMA IF NOT EXISTS URBANASSIST_DB.SILVER
+  COMMENT = 'Validated, standardized, and enriched data';
+
+-- Gold owns facts, dimensions, AI results, and business aggregates.
+CREATE SCHEMA IF NOT EXISTS URBANASSIST_DB.GOLD
+  COMMENT = 'Dimensional model and business aggregates';
+
+-- OPS owns the operational objects that move and process data between layers.
+CREATE SCHEMA IF NOT EXISTS URBANASSIST_DB.OPS
+  COMMENT = 'Stages, pipes, streams, tasks, procedures, and monitoring';
+
+-- INTELLIGENCE owns the semantic view and Cortex Agent exposed to consumers.
+CREATE SCHEMA IF NOT EXISTS URBANASSIST_DB.INTELLIGENCE
+  COMMENT = 'Semantic views and Cortex Agents';
